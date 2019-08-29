@@ -146,10 +146,15 @@ end
 
 function Health:Update(frame)
 	local isOffline = not UnitIsConnected(frame.unit)
+	local maxHealth = 0
 	frame.isDead = UnitIsDeadOrGhost(frame.unit)
-	frame.healthBar.currentHealth = UnitHealth(frame.unit)
-	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
-	frame.healthBar:SetValue(isOffline and UnitHealthMax(frame.unit) or frame.isDead and 0 or frame.healthBar.currentHealth)
+	if( IsAddOnLoaded("RealMobHealth") ) then
+		frame.healthBar.currentHealth, maxHealth = RealMobHealth.GetUnitHealth(frame.unit)
+	else
+		frame.healthBar.currentHealth, maxHealth = UnitHealth(frame.unit), UnitHealthMax(frame.unit)
+	end
+	frame.healthBar:SetMinMaxValues(0, maxHealth)
+	frame.healthBar:SetValue(isOffline and maxHealth or frame.isDead and 0 or frame.healthBar.currentHealth)
 
 	-- Unit is offline, fill bar up + grey it
 	if( isOffline ) then
